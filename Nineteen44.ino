@@ -101,7 +101,7 @@ const uint8_t * const p38_dropIn_images[] PROGMEM = { p38_dropIn_07,p38_dropIn_0
  * -----------------------------------------------------------------------------------------------------------------------------
  */
 uint8_t dropIn = 1;
-uint8_t size = 1;
+uint8_t size = 33;
 void loop() {
 
   if (!(arduboy.nextFrame())) return;
@@ -116,9 +116,9 @@ if (arduboy.everyXFrames(20)) {
 }
 */
 
-if (arduboy.everyXFrames(20)) {
-  size++;
-  if (size == 33) size = 1;
+if (arduboy.everyXFrames(5)) {
+  size--;
+  if (size == 0) size = 33;
 }
 
   switch (dropIn) {
@@ -232,7 +232,12 @@ Serial.print(':');
                 int32_t x1 = x + (a * size);
                 int32_t y1 = y + (b * size * 8) + (d * size);
 
-                arduboy.fillRect(x1, y1, size, size, WHITE);
+                if (x1+size < 0 || x1 > WIDTH-1 || y1+size < 0 || y1 > HEIGHT-1) {
+
+                }
+                else {
+                  arduboy.fillRect(x1, y1, size, size, WHITE);
+                }
               }
 
             }
