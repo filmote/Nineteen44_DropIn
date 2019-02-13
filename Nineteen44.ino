@@ -10,6 +10,17 @@ void setup() {
 
 }
 
+const uint8_t PROGMEM p38_0[] = {
+18, 19,
+0x00, 0x20, 0xB0, 0xF0, 0x20, 0x20, 0x20, 0x60, 0x60, 0x60, 0xBC, 0x66, 0xBC, 0x60, 0x00, 0x30, 0x00, 0x00,
+0x00, 0x20, 0x6F, 0x7F, 0x20, 0x20, 0x20, 0x32, 0x37, 0x35, 0xED, 0x37, 0xED, 0x35, 0x07, 0x67, 0x02, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+
+0x00, 0x20, 0xB0, 0xF0, 0x20, 0x20, 0x20, 0x60, 0x60, 0x60, 0xBC, 0x66, 0xBC, 0x60, 0x00, 0x60, 0x00, 0x00,
+0x00, 0x20, 0x6F, 0x7F, 0x20, 0x20, 0x20, 0x32, 0x37, 0x35, 0xED, 0x37, 0xED, 0x35, 0x07, 0x37, 0x02, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
 const unsigned char PROGMEM p38_dropIn_07[] = {
 48, 64,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0x00, 0x00, 0x00, 0x00, 
@@ -68,14 +79,19 @@ const unsigned char PROGMEM p38_dropIn_12[] = {
 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0x1c, 0x0f, 0x00, 0x00, 0x03, 0x03, 0x00, 
 };
 
-const unsigned char PROGMEM p38_dropIn_locations[] = {
-  0, 0,
-  0, 0, 
-  0, 0, 
-  0, 10,
-  0, 14,
-  0, 20,
-  1, 23
+const int32_t p38_dropIn_locations[] = {
+  -100, -250, 33,
+  -500, -500, 33,
+
+
+
+  0, 0, 0,
+  0, 0, 0,
+  0, 0, 0, 
+  0, 10, 0,
+  0, 14, 0,
+  0, 20, 0,
+  1, 23, 0,
   };
 
 const uint8_t * const p38_dropIn_images[] PROGMEM = { p38_dropIn_07,p38_dropIn_08,p38_dropIn_09,p38_dropIn_10,p38_dropIn_11, p38_dropIn_12 };
@@ -85,6 +101,7 @@ const uint8_t * const p38_dropIn_images[] PROGMEM = { p38_dropIn_07,p38_dropIn_0
  * -----------------------------------------------------------------------------------------------------------------------------
  */
 uint8_t dropIn = 1;
+uint8_t size = 1;
 void loop() {
 
   if (!(arduboy.nextFrame())) return;
@@ -92,13 +109,20 @@ void loop() {
   arduboy.clear();
   arduboy.pollButtons();
 
-
+/*
 if (arduboy.everyXFrames(20)) {
   dropIn++;
   if (dropIn == 13) dropIn = 1;
 }
-  switch (dropIn) {
+*/
 
+if (arduboy.everyXFrames(20)) {
+  size++;
+  if (size == 33) size = 1;
+}
+
+  switch (dropIn) {
+/*
     case 1:
       arduboy.fillRect(31, 0, 128 - 31, 15, WHITE);
       arduboy.fillRect(31, 48, 128 - 31, 64 - 48, WHITE);
@@ -173,13 +197,67 @@ if (arduboy.everyXFrames(20)) {
       arduboy.fillRect(64, 57, 8, 7, WHITE);
 
       break;
+*/
+
+    case 1 ... 6:
+      {
+        uint8_t w = pgm_read_byte(&p38_0[0]);
+//        int32_t x = p38_dropIn_locations[(dropIn - 1)];
+//        int32_t y = p38_dropIn_locations[(dropIn - 1) + 1];
+//        int32_t size = p38_dropIn_locations[(dropIn - 1) + 2];
+
+int32_t x = 64 - (10 * size);;
+int32_t y = 32 - (10 * size);
+
+Serial.print(x);
+Serial.print(',');
+Serial.print(y);
+Serial.print(':');
+        for (uint8_t b = 0; b < 3; b++) {
+
+          for (uint8_t a = 0; a < w; a++) {
+
+            uint8_t c = pgm_read_byte(&p38_0[2 + (b * w) + a]);
+
+            // Serial.print("(");
+            // Serial.print(c);
+            // Serial.print(") ");
+
+            for (uint8_t d = 0; d < 8; d++) {
+
+              uint8_t e = (c & (1 << d));
+
+              if (e > 0) {
+                
+                int32_t x1 = x + (a * size);
+                int32_t y1 = y + (b * size * 8) + (d * size);
+
+                arduboy.fillRect(x1, y1, size, size, WHITE);
+              }
+
+            }
+
+            Serial.print(" ");
+
+          }
+
+          Serial.println(" ");
+
+        }
+
+        Serial.println("----");
+      }
+
+      break;
 
     case 7 ... 12:
       uint8_t i = dropIn - 7;
-      uint8_t x = pgm_read_byte(&p38_dropIn_locations[i * 2]);
-      uint8_t y = pgm_read_byte(&p38_dropIn_locations[(i * 2) + 1]);
+      uint8_t x = pgm_read_byte(&p38_dropIn_locations[i * 3]);
+      uint8_t y = pgm_read_byte(&p38_dropIn_locations[(i * 3) + 1]);
 
       Sprites::drawSelfMasked(x, y, pgm_read_word_near(&p38_dropIn_images[static_cast<uint8_t>(i) ]), 0);
+
+      break;
 
   }
   
